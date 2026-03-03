@@ -22,6 +22,7 @@
 #define MEASURE_INTERVAL 2
 // Duración aproximada en la pantalla de las alertas que se reciban
 #define ALERT_DURATION 60
+#define OLED_MESSAGE_LINES 4
  
 
 // Declaraciones
@@ -74,6 +75,59 @@ float temp;
 float humi;
 
 /**
+ * Reinicia el temporizador y asigna el mensaje actual para la OLED.
+ */
+void setAlert(String message) {
+  alert = message;
+  alertTime = millis();
+}
+
+/**
+ * Obtiene una sección de un mensaje con formato OLED;linea1;linea2;...
+ */
+String getOLEDMessageSegment(String payload, int segment) {
+  int start = 0;
+  int currentSegment = 0;
+
+  while (currentSegment < segment) {
+    start = payload.indexOf(';', start);
+    if (start < 0) {
+      return "";
+    }
+    start += 1;
+    currentSegment += 1;
+  }
+
+  int end = payload.indexOf(';', start);
+  if (end < 0) {
+    end = payload.length();
+  }
+
+  return payload.substring(start, end);
+}
+
+/**
+ * Convierte el nuevo comando OLED en un mensaje multilínea para la pantalla.
+ */
+String buildOLEDAlert(String payload) {
+  String message = "";
+
+  for (int i = 1; i <= OLED_MESSAGE_LINES; i++) {
+    String line = getOLEDMessageSegment(payload, i);
+    if (line.length() == 0) {
+      continue;
+    }
+
+    if (message.length() != 0) {
+      message += "\n";
+    }
+    message += line;
+  }
+
+  return message;
+}
+
+/**
  * Conecta el dispositivo con el bróker MQTT usando
  * las credenciales establecidas.
  * Si ocurre un error lo imprime en la consola.
@@ -95,7 +149,7 @@ void mqtt_connect()
       Serial.println("Problema con la conexión, revise los valores de las constantes MQTT");
       int state = client.state();
       Serial.print("Código de error = ");
-      alert = "MQTT error: " + String(state);
+      setAlert("MQTT error: " + String(state));
       Serial.println(state);
       
       if ( client.state() == MQTT_CONNECT_UNAUTHORIZED ) {
@@ -225,14 +279,13 @@ void displayMessage(String message) {
   
   display.setTextSize(1);
   display.println("\nMsg:");
-  
-  display.setTextSize(2);
-  
+
   if (message.equals("OK")) {
+    display.setTextSize(2);
     display.println("    " + message); 
   } else {
-    display.setTextSize(2);
-    display.println("");
+    // El nuevo evento OLED puede traer varias lineas separadas por '\n'.
+    display.setTextSize(1);
     display.println("");
     display.println(message); 
   }
@@ -284,8 +337,10 @@ void receivedCallback(char* topic, byte* payload, unsigned int length) {
     data += String((char)payload[i]);
   }
   Serial.print(data);
-  if (data.indexOf("ALERT") >= 0) {
-    alert = data;
+  if (data.indexOf("OLED;") == 0) {
+    setAlert(buildOLEDAlert(data));
+  } else if (data.indexOf("ALERT") >= 0) {
+    setAlert(data);
   }
 }
 
