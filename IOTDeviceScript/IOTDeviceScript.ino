@@ -37,27 +37,27 @@ WiFiClient net;
 PubSubClient client(net);
 
 
-// Variables a editar TODO
+// Variables a editar 
 
 // WiFi
 // Nombre de la red WiFi
-const char ssid[] = "RedWiFi"; // TODO cambiar por el nombre de la red WiFi
+const char ssid[] = "nombre"; 
 // Contraseña de la red WiFi
-const char pass[] = "ClaveWiFi"; // TODO cambiar por la contraseña de la red WiFi
+const char pass[] = "contra"; 
 
 //Conexión a Mosquitto
-#define USER "UsuarioMQTT" // TODO Reemplace UsuarioMQTT por un usuario (no administrador) que haya creado en la configuración del bróker de MQTT.
-const char MQTT_HOST[] = "ip.maquina.mqtt"; // TODO Reemplace ip.maquina.mqtt por la IP del bróker MQTT que usted desplegó. Ej: 192.168.0.1
+#define USER "nino" 
+const char MQTT_HOST[] = "52.207.237.20"; 
 const int MQTT_PORT = 8082;
 const char MQTT_USER[] = USER;
 //Contraseña de MQTT
-const char MQTT_PASS[] = "ContrasenaMQTT"; // TODO Reemplace ContrasenaMQTT por la contraseña correpondiente al usuario especificado.
+const char MQTT_PASS[] = "lol"; 
 
 //Tópico al que se recibirán los datos
 // El tópico de publicación debe tener estructura: <país>/<estado>/<ciudad>/<usuario>/out
-const char MQTT_TOPIC_PUB[] = "pais/estado/ciudad/" USER "/out"; //TODO Reemplace el valor por el tópico de publicación que le corresponde.
+const char MQTT_TOPIC_PUB[] = "Colombia/Cundinamarca/Bogota/" USER "/out"; 
 // El tópico de suscripción debe tener estructura: <país>/<estado>/<ciudad>/<usuario>/in
-const char MQTT_TOPIC_SUB[] = "pais/estado/ciudad/" USER "/in"; //TODO Reemplace el valor por el tópico de suscripción que le corresponde.
+const char MQTT_TOPIC_SUB[] = "Colombia/Cundinamarca/Bogota/" USER "/in"; 
 
 // Declaración de variables globales
 
